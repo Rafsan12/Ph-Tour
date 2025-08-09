@@ -1,11 +1,50 @@
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import Password from "@/components/ui/Password";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import { z } from "zod";
+
+const registerSchema = z
+  .object({
+    name: z.string().min(2).max(50),
+    email: z.email(),
+    password: z.string().min(8),
+    confirmedPassword: z.string().min(8),
+  })
+  .refine((data) => data.password === data.confirmedPassword, {
+    message: "Passwords don't match",
+    path: ["confirmedPassword"],
+  });
 
 export function RegisterForm({
   className,
   ...props
-}: React.ComponentProps<"form">) {
+}: React.HTMLAttributes<HTMLDivElement>) {
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmedPassword: "",
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof registerSchema>) => {
+    console.log(data);
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
@@ -13,6 +52,83 @@ export function RegisterForm({
         <p className="text-muted-foreground text-sm text-balance">
           Enter your email below to login to your account
         </p>
+      </div>
+      <div className="grid gap-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your name" {...field} />
+                  </FormControl>
+                  <FormDescription className="sr-only">
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Your Email Address"
+                      {...field}
+                      type="email"
+                    />
+                  </FormControl>
+                  <FormDescription className="sr-only">
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Password {...field} />
+                  </FormControl>
+                  <FormDescription className="sr-only">
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmedPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmed Password</FormLabel>
+                  <FormControl>
+                    <Password {...field} />
+                  </FormControl>
+                  <FormDescription className="sr-only">
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button className="w-full" type="submit">
+              Submit
+            </Button>
+          </form>
+        </Form>
       </div>
 
       <div>
